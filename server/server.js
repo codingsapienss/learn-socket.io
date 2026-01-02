@@ -26,10 +26,17 @@ const io = new Server(server, {
 io.on('connection', (socket) => {
     console.log("User.id", socket.id);
     console.log('User connected...');
+
+    socket.emit('welcome', `Welcome to the Socket.io server! ${socket.id}`);
+
+    socket.broadcast.emit('newUser', `New user connected: ${socket.id}`);
+
+    socket.on('disconnect', () => {
+        console.log('User disconnected...');
+    });
 });
 
 app.get('/', (req, res) => {
-
     res.send('Hello World!');
 });
 

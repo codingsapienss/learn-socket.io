@@ -9,6 +9,18 @@ const App = () => {
       console.log('Connected to server with ID:', socket.id);
     });
 
+    socket.on('welcome', (s) => {
+      console.log(s);
+    });
+
+    socket.on('newUser', (s) => {
+      console.log(s);
+    });
+
+    socket.on('disconnect', () => {
+      console.log('Disconnected from server');
+    });
+
     return () => {
       socket.disconnect();
     };

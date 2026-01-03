@@ -9,10 +9,13 @@ const App = () => {
   const socket = React.useMemo(() => io('http://localhost:3000'), []);
 
   const [message, setMessage] = useState('');
+  const [room, setRoom] = useState('');
+  const [socketId, setSocketId] = useState('');
 
   useEffect(() => {
     socket.on('connect', () => {
       console.log('Connected to server with ID:', socket.id);
+      setSocketId(socket.id);
     });
 
     socket.on('welcome', (s) => {
@@ -24,7 +27,7 @@ const App = () => {
     });
 
     socket.on('recieveMesage', (data) => {
-      console.log('Message from server:', data);
+      console.log('Message from server:', data.message);
     });
 
     return () => {
@@ -34,7 +37,7 @@ const App = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    socket.emit('message', message);
+    socket.emit('message', { message, room });
     setMessage('');
     e.target.reset();
   };
@@ -45,8 +48,14 @@ const App = () => {
         Socket.io Client
       </Typography>
 
+      <Typography variant="h6" component="h6" gutterBottom>
+        Your Socket ID: {socketId}
+      </Typography>
+
       <form onSubmit={handleSubmit}>
-        <TextField onChange={e => setMessage(e.target.value)} id="outlined-basic" label="Outlined" variant='outlined' />
+        <TextField value={message} onChange={e => setMessage(e.target.value)} id="outlined-basic" label="Message" variant='outlined' />
+
+        <TextField value={room} onChange={e => setRoom(e.target.value)} id="outlined-basic" label="Room" variant='outlined' />
         <Button variant="contained" color="primary" type="submit"> Send Message</Button>
       </form>
 

@@ -32,9 +32,10 @@ io.on('connection', (socket) => {
     socket.broadcast.emit('newUser', `New user connected: ${socket.id}`);
 
     socket.on("message", (data) => {
-        console.log("Message from client:", data);
+        console.log("Message from client:", data.message);
         // io.emit("recieveMesage", data);
-        socket.broadcast.emit("recieveMesage", data);
+        // socket.broadcast.emit("recieveMesage", data);
+        io.to(data.room).emit("recieveMesage", data);
     });
 
     socket.on('disconnect', () => {

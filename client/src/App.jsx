@@ -11,6 +11,7 @@ const App = () => {
   const [message, setMessage] = useState('');
   const [room, setRoom] = useState('');
   const [socketId, setSocketId] = useState('');
+  const [messages, setMessages] = useState([]);
 
   useEffect(() => {
     socket.on('connect', () => {
@@ -28,6 +29,7 @@ const App = () => {
 
     socket.on('recieveMesage', (data) => {
       console.log('Message from server:', data.message);
+      setMessages((prevMessages) => [...prevMessages, data.message]);
     });
 
     return () => {
@@ -58,6 +60,14 @@ const App = () => {
         <TextField value={room} onChange={e => setRoom(e.target.value)} id="outlined-basic" label="Room" variant='outlined' />
         <Button variant="contained" color="primary" type="submit"> Send Message</Button>
       </form>
+
+      {
+        messages.map((msg, index) => (
+          <Typography key={index} variant="body1" component="p" gutterBottom>
+            {msg}
+          </Typography>
+        ))
+      }
 
     </Container >
   )

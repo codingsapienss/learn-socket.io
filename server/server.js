@@ -37,10 +37,16 @@ io.on('connection', (socket) => {
         // socket.broadcast.emit("recieveMesage", data);
 
         if (data.room) {
-            io.to(data.room).emit("recieveMesage", data);
+            socket.to(data.room).emit("recieveMesage", data);
+            // io.to(data.room).emit("recieveMesage", data);
         } else {
             socket.broadcast.emit("recieveMesage", data);
         }
+    });
+
+    socket.on("joinRoom", (roomName) => {
+        socket.join(roomName);
+        console.log(`Socket ${socket.id} joined room: ${roomName}`);
     });
 
     socket.on('disconnect', () => {

@@ -2,10 +2,15 @@ import express from 'express';
 import { Server } from "socket.io";
 import { createServer } from 'http';
 import cors from 'cors';
+import jwt from 'jsonwebtoken';
+import cookieParser from 'cookie-parser';
 
 const app = express();
 const server = new createServer(app)
 const PORT = 3000;
+
+const secretKey = "your_secret_key";
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({
@@ -21,6 +26,33 @@ const io = new Server(server, {
         methods: ["GET", "POST"],
         credentials: true
     }
+})
+
+
+app.get('/', (req, res) => {
+    res.send('Hello World!');
+});
+
+
+app.get('/login', (req, res) => {
+    const token = jwt.sign({ _id: "userId" }, secretKey, { expiresIn: '1h' });
+    res.cookie('token', token).send({ message: 'Logged in successfully', token });
+});
+
+
+io.use((socket, next) => {
+    cookieParser()(socket.request, socket.request.res, (err) => {
+        if (err) return next(err);
+        const token = socket.request.cookies.token;
+        if (!token) {
+            return next(new Error('Authentication error'));
+        }
+        const decoded = jwt.verify(token, secretKey);
+        if (!decoded) {
+            return next(new Error('Authentication error'));
+        }
+        next()
+    });
 })
 
 io.on('connection', (socket) => {
@@ -54,9 +86,6 @@ io.on('connection', (socket) => {
     });
 });
 
-app.get('/', (req, res) => {
-    res.send('Hello World!');
-});
 
 server.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
